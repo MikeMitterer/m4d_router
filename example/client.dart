@@ -5,7 +5,7 @@
 library example;
 
 import 'dart:html';
-import 'package:route/client.dart';
+import 'package:route/browser.dart';
 import 'package:logging/logging.dart';
 import 'urls.dart' as urls;
 

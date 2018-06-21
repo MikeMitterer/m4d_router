@@ -11,8 +11,7 @@ library route.server;
 import 'dart:async';
 import 'dart:collection';
 import 'dart:io';
-import 'package:route/src/async_utils.dart';
-import 'url_pattern.dart';
+import 'package:route/utils/async_utils.dart';
 export 'url_pattern.dart';
 import 'pattern.dart';
 

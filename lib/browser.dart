@@ -2,13 +2,19 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
-library route.client;
+library route.browser;
 
+import 'dart:async';
 import 'dart:collection';
 import 'dart:html';
+
 import 'package:logging/logging.dart';
+
 import 'url_pattern.dart';
+import 'route.dart';
+
 export 'url_pattern.dart';
+export 'route.dart';
 
 typedef Handler(final String path);
 
@@ -20,24 +26,31 @@ typedef void EventHandler(final Event e);
 class Router {
   final _logger = new Logger('route.client');
 
-  final LinkedHashMap<UrlPattern, Handler> _handlers;
+  final LinkedHashMap<UrlPattern, Route> _handlers;
   final bool useFragment;
 
   bool _listen = false;
+
+  StreamController<RouteEvent> _onEnter;
+
 
   /// [useFragment] determines whether this Router uses pure paths with
   /// [History.pushState] or paths + fragments and [Location.assign]. The default
   /// value is null which then determines the behavior based on
   /// [History.supportsState].
   Router({final bool useFragment})
-      : _handlers = new LinkedHashMap<UrlPattern, Handler>(),
+      : _handlers = new LinkedHashMap<UrlPattern, Route>(),
         useFragment = (useFragment == null) ? !History.supportsState : useFragment;
 
   /// Registers a function that will be invoked when the router handles a URL
   /// that matches [pattern].
-  void addRoute(final UrlPattern pattern, final Handler handler) {
-    _logger.finest('addHandler $pattern');
-    _handlers[pattern] = handler;
+  void addRoute({final String name, final path, final RouteEnterEventHandler enter }) {
+      final Route route = (path is UrlPattern)
+          ? new Route(name, path, enter)
+          : new Route(name, new UrlPattern(path.toString()), enter);
+
+    _logger.finest('addHandler ${route.title} -> ${route.urlPattern.pattern}');
+    _handlers[route.urlPattern] = route;
   }
 
   /// Listens for window history events and invokes the router. On older
@@ -51,14 +64,14 @@ class Router {
     _listen = true;
     if (useFragment) {
       window.onHashChange.listen((_) {
-        var path = '${window.location.pathname}${window.location.hash}';
+        final path = '${window.location.pathname}${window.location.hash}';
         _logger.finest('onHashChange handle($path)');
         return _handle(path);
       });
       _handle('${window.location.pathname}${window.location.hash}');
     } else {
       window.onPopState.listen((_) {
-        var path = '${window.location.pathname}${window.location.hash}';
+        final path = '${window.location.pathname}${window.location.hash}';
         _logger.finest('onPopState handle($path)');
         _handle(path);
       });
@@ -67,9 +80,9 @@ class Router {
     if (!ignoreClick) {
       window.onClick.listen((e) {
         if (e.target is AnchorElement) {
-          AnchorElement anchor = e.target;
+          final AnchorElement anchor = e.target;
           if (anchor.host == window.location.host) {
-            var fragment = (anchor.hash == '') ? '' : '${anchor.hash}';
+            final fragment = (anchor.hash == '') ? '' : '${anchor.hash}';
             gotoPath("${anchor.pathname}$fragment", anchor.title);
             e.preventDefault();
           }
@@ -83,23 +96,23 @@ class Router {
   ///
   /// On older browsers [Location.assign] is used instead with the fragment
   /// version of the UrlPattern.
-  void gotoUrl(UrlPattern url, List args, String title) {
+  void gotoUrl(final UrlPattern url,final List args,final String title) {
     if (_handlers.containsKey(url)) {
       _go(url.reverse(args, useFragment: useFragment), title);
-      _handlers[url](url.reverse(args, useFragment: useFragment));
+      _fire(new RouteEvent(_handlers[url]));
     } else {
       throw new ArgumentError('Unknown URL pattern: $url');
     }
   }
 
-  void gotoPath(String path, String title) {
+  void gotoPath(final String path,final String title) {
     _logger.finest('gotoPath $path');
     var url = _getUrl(path);
     if (url != null) {
       _go(path, title);
       // If useFragment, onHashChange will call handle for us.
       if (!_listen || !useFragment) {
-        _handlers[url](path);
+          _fire(new RouteEvent(_handlers[url]));
       }
     }
   }
@@ -114,6 +127,13 @@ class Router {
         e.preventDefault();
         gotoUrl(url, args, title);
       };
+
+  Stream<RouteEvent> get onEnter {
+      if(_onEnter == null) {
+          _onEnter = new StreamController<RouteEvent>.broadcast(onCancel: () => _onEnter = null);
+      }
+      return _onEnter.stream;
+  }
 
   // - private -------------------------------------------------------------------------------------
 
@@ -130,9 +150,9 @@ class Router {
     _logger.finest('handle $path');
     var url = _getUrl(path);
     if (url != null) {
-      // always give handlers a non-fragment path
+      // TODO:  always give handlers a non-fragment path
       var fixedPath = url.reverse(url.parse(path));
-      _handlers[url](fixedPath);
+      _fire(new RouteEvent(_handlers[url]));
     } else {
       _logger.info("Unhandled path: $path");
     }
@@ -154,5 +174,14 @@ class Router {
     } else {
       window.history.pushState(null, title, path);
     }
+  }
+
+  void _fire(final RouteEvent event) {
+      // _logger.info("onChange: ${_onChange}, hasListeners: ${_onChange ?.hasListener}");
+      if(_onEnter != null && _onEnter.hasListener) {
+          _onEnter.add(event);
+      }
+
+      event.route.onEnter(event);
   }
 }
