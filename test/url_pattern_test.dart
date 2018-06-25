@@ -36,23 +36,25 @@ main() {
     });
 
     test('disallow ambiguous groups', () {
-        expect(() => new UrlPattern(r'(\w+)(\w+)'), throws);
+        expect(() => new UrlPattern(r'(\w+)(\w+)'), throwsArgumentError);
+        expect(new UrlPattern(r'(\w+)/(\w+)'), isNot(throwsArgumentError));
     });
 
     test('disallow unmatched parens', () {
-        expect(() => new UrlPattern('('), throws);
-        expect(() => new UrlPattern(')'), throws);
-        expect(() => new UrlPattern('(()'), throws);
-        expect(() => new UrlPattern('())'), throws);
+        expect(() => new UrlPattern('('), throwsArgumentError);
+        expect(() => new UrlPattern(')'), throwsArgumentError);
+        expect(() => new UrlPattern('(()'), throwsArgumentError);
+        expect(() => new UrlPattern('())'), throwsArgumentError);
     });
 
     test('patterns with fragments matches hash and path URLs', () {
         var pattern = new UrlPattern(r'/foo#(\w+)');
         expect(pattern.matches('/foo#abc'), true);
         expect(pattern.matches('/foo/abc'), true);
-        expect(pattern.reverse(['abc'], useFragment: true), '/foo#abc');
-        expect(pattern.reverse(['abc'], useFragment: false), '/foo/abc');
+        expect(pattern.expand(['abc'], useFragment: true), '/foo#abc');
+        expect(pattern.expand(['abc'], useFragment: false), '/foo/abc');
     });
+
 
     test('special chars outside groups', () {
         checkPattern('^', '^', []);
@@ -72,10 +74,34 @@ main() {
         expect(pattern.matchesNonFragment('/foo'), true);
         expect(() {
             new UrlPattern(r'(#)');
-        }, throws);
+        }, throwsArgumentError);
         expect(() {
             new UrlPattern(r'##');
-        }, throws);
+        }, throwsArgumentError);
+    });
+
+    group("ReactPattern", () {
+        test('should automatically add /# prefix', () {
+            var pattern = new ReactPattern(r'/test');
+            expect(pattern.matches('/#/test'), true);
+            expect(pattern.matches('/test'), false);
+        });
+
+        test('should add no prefix if hash already exists', () {
+            var pattern = new ReactPattern(r'/foo#(\w+)');
+            expect(pattern.matches('/foo#abc'), true);
+            expect(pattern.matches('/foo/abc'), true);
+            expect(pattern.expand(['abc'], useFragment: true), '/foo#abc');
+            expect(pattern.expand(['abc'], useFragment: false), '/foo/abc');
+
+            pattern = new ReactPattern(r'/foo#/(\w+)');
+            expect(pattern.matches('/foo#/abc'), true);
+            expect(pattern.matches('/foo//abc'), true);
+            expect(pattern.expand(['abc'], useFragment: true), '/foo#/abc');
+            expect(pattern.expand(['abc'], useFragment: false), '/foo//abc');
+
+        });
+
     });
 }
 
@@ -86,11 +112,13 @@ main() {
  *  * Reversing the pattern with [args] produces the String [url].
  *  * None of the Strings in [nonMatches] match the pattern.
  */
-checkPattern(String p, String url, List args, [List nonMatches]) {
-    var pattern = new UrlPattern(p);
+checkPattern(final String p,final String url,final List args, [final List nonMatches]) {
+    final pattern = new UrlPattern(p);
+
     expect(pattern.matches(url), true);
-    expect(pattern.reverse(args), url);
+    expect(pattern.expand(args), url);
     expect(pattern.parse(url), orderedEquals(args));
+
     if (nonMatches != null) {
         for (var url in nonMatches) {
             expect(pattern.matches(url), false);

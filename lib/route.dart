@@ -1,33 +1,46 @@
 library route.client;
 
-import 'dart:async';
-
 import 'package:route/url_pattern.dart';
 
-//typedef void RoutePreEnterEventHandler(RoutePreEnterEvent event);
-//typedef void RouteEnterEventHandler(RouteEnterEvent event);
-//typedef void RoutePreLeaveEventHandler(RoutePreLeaveEvent event);
-//typedef void RouteLeaveEventHandler(RouteLeaveEvent event);
+typedef void RouteEnterCallback(final RouteEnterEvent event);
 
-typedef void RouteEnterEventHandler(final RouteEvent event);
+/// Route enter event.
+abstract class RouteEvent {
+    final String path;
 
-/**
- * Route enter or leave event.
- */
-class RouteEvent {
+    RouteEvent(this.path);
+
+    @override
+    String toString() => "RouteEvent(${path})";
+}
+
+class RouteEnterEvent extends RouteEvent {
     final Route route;
+    final List<String> params;
 
-    RouteEvent(this.route);
+    RouteEnterEvent(this.route,final String path, this.params) : super(path);
 
     @override
     String toString() => "Title: ${route.title} -> ${route.urlPattern.pattern}";
+}
+
+/// Event on error
+class RouteErrorEvent extends RouteEvent {
+    final Error error;
+
+    RouteErrorEvent(this.error, final String path)
+        : super(path);
+
+    @override
+    String toString() => "Path: ${path} -> ${error.toString()}";
 }
 
 class Route {
     final String title;
     final UrlPattern urlPattern;
 
-    final RouteEnterEventHandler onEnter;
+    /// Callback
+    final RouteEnterCallback onEnter;
 
     Route(this.title, this.urlPattern, this.onEnter);
 }
