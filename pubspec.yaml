@@ -1,6 +1,6 @@
 name: m4d_router
 description: A browser routing library for Dart
-version: 0.1.1
+version: 0.1.2
 author: "Dart Authors <misc@dartlang.org>"
 homepage: https://github.com/dart-lang/route
 
