@@ -1,21 +1,92 @@
-Route
-=====
+# Material4Dart router
 
-Route is a client + server routing library for Dart that helps make building
+m4d_router is a client routing library for Dart. It helps make building
 single-page web apps and using `HttpServer` easier.
 
-Installation
-------------
+## Installation
 
 Add this package to your pubspec.yaml file:
 
     dependencies:
-      route: any
+      m4d_router: any
 
 Then, run `pub get` to download and link in the package.
 
-UrlPattern
-----------
+## Sample
+
+Check out the sample on [GitHub](https://github.com/MikeMitterer/m4d_router/tree/route_version/example/browser)
+
+```dart
+void main() {
+    final router = new Router();
+
+    configLogging(show: Level.INFO);
+    _configRouter(router);
+
+    dom.querySelector('#output').text = 'Your Dart app is running.';
+}
+
+void _configRouter(final Router router ) {
+
+    router
+        ..addRoute(name: "Test I", path: new UrlPattern('/#/test'),
+            enter: (final RouteEnterEvent event) {
+                _log(event.route.title);
+                _logger.info("Path: ${event.path} Params: ${event.params.join(",")}");
+                _showImage("https://upload.wikimedia.org/wikipedia/commons/1/11/Test-Logo.svg");
+            })
+
+        ..addRoute(name: 'Cats', path: new ReactPattern('/cats'),
+            enter: (final RouteEnterEvent event) {
+                _log(event.route.title);
+                _logger.info("Path: ${event.path} Params: ${event.params.join(",")}");
+                _showImage("https://i1.wp.com/www.oxygen.ie/wp-content/uploads/2016/11/main_1500.jpg?resize=750%2C400");
+            })
+
+        ..addRoute(name: 'Specific cat', path: new ReactPattern(r'/cats/(\w+)'),
+            enter: (final RouteEnterEvent event) {
+                _log("${event.route.title}: ${event.params.join(",")}");
+                _logger.info("Path: ${event.path} Params: ${event.params.join(",")}");
+                if(event.params.first.toLowerCase() == "grumpy") {
+                    _showImage("https://pbs.twimg.com/media/CsW0pmxUsAAuvEN.jpg");
+                } else {
+                    _showImage("https://catzone-tcwebsites.netdna-ssl.com/wp-content/uploads/2014/09/453768-cats-cute.jpg");
+                }
+            })
+
+        ..addRoute(name: "Google for cats", path: new ReactPattern('/google'),
+            enter: (final RouteEnterEvent event) {
+                _log(event.route.title);
+                _logger.info("Path: ${event.path} Params: ${event.params.join(",")}");
+                _showImage("https://upload.wikimedia.org/wikipedia/commons/a/a5/Google_Chrome_icon_%28September_2014%29.svg");
+            })
+    ;
+
+    // optional
+    router.onEnter.listen((final RouteEnterEvent event) {
+        _logger.info("RoutEvent ${event.route.title} -> ${event.route.urlPattern.pattern}");
+    });
+
+    // optional
+    router.onError.listen((final RouteErrorEvent event) {
+        _logger.info("RouteErrorEvent ${event.exception}");
+    });
+
+    router.listen(); // Start listening
+}
+
+void _log(final String logMessage) {
+    final logElement = dom.querySelector("#log") as dom.UListElement;
+    logElement.append(new dom.LIElement()..text = logMessage);
+}
+
+void _showImage(final String url) {
+    final img = dom.querySelector("img") as dom.ImageElement;
+    img.src = url;
+}
+```
+
+### UrlPattern
 
 Route is built around `UrlPattern` a class that matches, parses and produces
 URLs. A `UrlPattern` is similar to a regex, but constrained so that it is
@@ -31,96 +102,9 @@ As an example, consider a blog with a home page and an article page. The article
 URL has the form /article/1234. We want to show articles without reloading the
 page.
 
-Example (urls.dart):
+## Routing
 
-```dart
-library urls;
-
-import 'package:route/url_pattern.dart';
-
-final homeUrl = new UrlPattern(r'/');
-final articleUrl = new UrlPattern(r'/article/(\d+)');
-final allUrls = [homeUrl, articleUrl];
-```
-
-Client Routing
---------------
-
-On the client, there is a `Router` class that associates `UrlPattern`s
+On the browser, there is a `Router` class that associates `UrlPattern`s
 to handlers. Given a URL, the router finds a pattern that matches, and invokes
-its handler. This is similar to
-`HttpServer.addRequestHandler(matcher, handler)` on the server. The handlers
+its handler. The handlers
 are then responsible for rendering the appropriate changes to the page.
-
-The `Router` can listen to `Window.onPopState` events and invoke the correct
-handler so that the back button seamlessly works.
-
-Example (client.dart):
-
-```dart
-library client;
-
-import 'package:route/client.dart';
-
-main() {
-  var router = new Router()
-      ..addHandler(homeUrl, showHome)
-      ..addHandler(articleUrl, showArticle)
-      ..listen();
-}
-
-void showHome(String path) {
-  // nothing to parse from path, since there are no groups
-}
-
-void showArticle(String path) {
-  var articleId = articleUrl.parse(req.path)[0];
-  // show article page with loading indicator
-  // load article from server, then render article
-}
-```
-
-Server Routing
---------------
-
-On the server, route gives you a utility function to match `HttpRequest`s
-against `UrlPatterns`.
-
-```dart
-import 'urls.dart';
-import 'package:route/server.dart';
-import 'package:route/pattern.dart';
-
-HttpServer.bind().then((server) {
-  var router = new Router(server)
-      ..filter(matchesAny(allUrls), authFilter)
-      ..serve(homeUrl).listen(serverHome)
-      ..serve(articleUrl, method: 'GET').listen(serveArticle)
-      ..defaultStream.listen(serveNotFound);
-});
-
-Future<bool> authFilter(req) {
-  return getUser(getUserIdCookie(req)).then((user) {
-    if (user != null) return true;
-    redirectToLoginPage(req);
-    return false;
-  });
-}
-
-serveArticle(req) {
-  var articleId = articleUrl.parse(req.uri.path)[0];
-  // retrieve article data and respond
-}
-```
-
-Further Goals
--------------
-
- * Integration with Polymer so that the changing of UI views can happen
-   automatically.
- * Handling different HTTP methods to help implement REST APIs.
- * Automatic generation of REST URLs from a single URL pattern, similar to Ruby
-   on Rails
- * Helpers for nested views and key-value URL schemes common with complex apps.
- * [Done] ~~Server-side routing for the dart:io v2 HttpServer~~
- * [Done] ~~IE 9 support~~

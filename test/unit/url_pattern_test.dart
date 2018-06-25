@@ -5,7 +5,7 @@
 library route.url_pattern_test;
 
 import 'package:test/test.dart';
-import 'package:route/url_pattern.dart';
+import 'package:m4d_router/url_pattern.dart';
 
 main() {
     test('patterns with no groups', () {

@@ -1,5 +1,5 @@
 import 'dart:html' as dom;
-import 'package:route/browser.dart';
+import 'package:m4d_router/router.dart';
 import 'package:console_log_handler/console_log_handler.dart';
 
 final Logger _logger = new Logger('router.example.browser');
@@ -56,7 +56,7 @@ void _configRouter(final Router router ) {
 
     // optional
     router.onError.listen((final RouteErrorEvent event) {
-        _logger.info("RouteErrorEvent ${event.error}");
+        _logger.info("RouteErrorEvent ${event.exception}");
     });
 
     router.listen(); // Start listening
