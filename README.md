@@ -3,6 +3,10 @@
 m4d_router is a client routing library for Dart. It helps make building
 single-page web apps and using `HttpServer` easier.
 
+<p align="center">
+    <img src="https://raw.githubusercontent.com/MikeMitterer/m4d_router/blob/master/doc/images/m4d_router.gif" alt="Preview" />
+</p>
+
 ## Installation
 
 Add this package to your pubspec.yaml file:
