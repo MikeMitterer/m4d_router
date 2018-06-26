@@ -20,14 +20,14 @@ void _configRouter(final Router router ) {
             enter: (final RouteEnterEvent event) {
                 _log(event.route.title);
                 _logger.info("Path: ${event.path} Params: ${event.params.join(",")}");
-                _showImage("https://upload.wikimedia.org/wikipedia/commons/1/11/Test-Logo.svg");
+                _showImage("https://dummyimage.com/400x300/ff0000/000000.png&text=Test");
             })
 
-        ..addRoute(name: 'Cats', path: new ReactPattern('/cats'),
+        ..addRoute(name: 'Kitten', path: new ReactPattern('/kitten'),
             enter: (final RouteEnterEvent event) {
                 _log(event.route.title);
                 _logger.info("Path: ${event.path} Params: ${event.params.join(",")}");
-                _showImage("https://i1.wp.com/www.oxygen.ie/wp-content/uploads/2016/11/main_1500.jpg?resize=750%2C400");
+                _showImage("https://raw.githubusercontent.com/MikeMitterer/m4d_router/master/doc/images/cats/IMG-20150820-WA0000.jpg");
             })
 
         ..addRoute(name: 'Specific cat', path: new ReactPattern(r'/cats/([\w%]+)'),
@@ -35,9 +35,9 @@ void _configRouter(final Router router ) {
                 _log("${event.route.title}: ${event.params.join(",")}");
                 _logger.info("Path: ${event.path} Params: ${event.params.join(",")}");
                 if(event.params.first.toLowerCase() == "grumpy cat") {
-                    _showImage("https://pbs.twimg.com/media/CsW0pmxUsAAuvEN.jpg");
+                    _showImage("https://raw.githubusercontent.com/MikeMitterer/m4d_router/master/doc/images/cats/IMG_20140811_032111.jpg");
                 } else {
-                    _showImage("https://catzone-tcwebsites.netdna-ssl.com/wp-content/uploads/2014/09/453768-cats-cute.jpg");
+                    _showImage("https://raw.githubusercontent.com/MikeMitterer/m4d_router/master/doc/images/cats/IMG_20151224_182316.jpg");
                 }
             })
 
