@@ -1,7 +1,7 @@
 // @TestOn("browser")
 // integration
 @TestOn("browser")
-library test.integration.browser_gotourl;
+library test.integration.browser_onenter;
 
 import 'package:test/test.dart';
 import 'package:console_log_handler/console_log_handler.dart';
@@ -18,20 +18,26 @@ main() async {
     configLogging(show: Level.INFO);
 
     final router  = new Router();
-    test('gotoUrl should receive params', () {
+
+    test('onEnter should be called for link', () {
 
         final callback = expectAsync1((final RouteEnterEvent event) {
             expect(event, isNotNull);
-            expect(event.route.title, "Specific cat");
-            expect(event.params.first, "Grumpy cat");
+            expect(event.route.title, "Cats");
         });
 
-        final pattern = new ReactPattern(r'/cats/(\w+)');
-        router.addRoute(name: "Specific cat", path: pattern,
-            enter: callback);
+        final onEnter = expectAsync1((final RouteEnterEvent event) {
+            expect(event.path,"/#/cats");
+        });
 
-        listenAnd(router,() => router.gotoUrl(pattern,[ "Grumpy cat"]));
+        router.addRoute(name: "Cats", path: new ReactPattern("/cats"), enter: callback);
+
+        router.onEnter.listen(onEnter);
+
+        listenAnd(router,() => router.go("Cats"));
     });
+
 }
 
+// - Helper --------------------------------------------------------------------------------------
 

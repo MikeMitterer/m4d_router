@@ -116,15 +116,16 @@ class Router {
 
         if (!ignoreClick) {
             _eventStreams.add(
-                window.onClick.listen((e) {
-                if (e.target is AnchorElement) {
-                    final AnchorElement anchor = e.target;
+                window.onClick.listen((final MouseEvent event) {
+                if (event.target is AnchorElement) {
+                    final AnchorElement anchor = event.target;
                     if (anchor.host == window.location.host) {
+                        event.preventDefault();
+
                         final fragment = (anchor.hash == '') ? '' : '${anchor.hash}';
 
                         // TODO: Maybe pass title (anchor.title) as optional param
                         gotoPath("${anchor.pathname}$fragment");
-                        e.preventDefault();
                     }
                 }
             }));
@@ -158,7 +159,11 @@ class Router {
         _fire(new RouteEnterEvent(_handlers[urlPattern], fixedPath,  params));
     }
 
-    void gotoPath(final String path) {
+    /// Goes to specific path
+    ///
+    /// [testing] is quite a hack and is used only for unit-test
+    /// Without this flag the browser hangs in unit-tests
+    void gotoPath(final String path, { final bool testing: false }) {
         final urlPattern = _getUrl(path);
         final route = urlPattern != null ? _handlers[urlPattern]
             : throw new ArgumentError('No URL pattern found for : $path');
@@ -166,7 +171,7 @@ class Router {
         _go(path, route.title);
 
         // If useFragment, onHashChange will call handle for us.
-        if (!_listen || !useFragment) {
+        if (!_listen || !useFragment || testing) {
             final List<String> params = urlPattern.parse(path)
                 .map((final String param) => Uri.decodeFull(param)).toList();
 

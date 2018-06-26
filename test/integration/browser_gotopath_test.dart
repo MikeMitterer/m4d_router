@@ -1,7 +1,7 @@
 // @TestOn("browser")
 // integration
 @TestOn("browser")
-library test.integration.browser_gotourl;
+library test.integration.browser_gotopath;
 
 import 'package:test/test.dart';
 import 'package:console_log_handler/console_log_handler.dart';
@@ -18,7 +18,8 @@ main() async {
     configLogging(show: Level.INFO);
 
     final router  = new Router();
-    test('gotoUrl should receive params', () {
+
+    test('gotoPath should fetch params', () {
 
         final callback = expectAsync1((final RouteEnterEvent event) {
             expect(event, isNotNull);
@@ -26,12 +27,16 @@ main() async {
             expect(event.params.first, "Grumpy cat");
         });
 
-        final pattern = new ReactPattern(r'/cats/(\w+)');
+        // % - accepts e.g. %20 (space)
+        final pattern = new ReactPattern(r'/cats/([\w%]+)');
         router.addRoute(name: "Specific cat", path: pattern,
             enter: callback);
 
-        listenAnd(router,() => router.gotoUrl(pattern,[ "Grumpy cat"]));
+        // testing - hack!
+        listenAnd(router,() => router.gotoPath(Uri.encodeFull("/#/cats/Grumpy cat"),testing: true));
     });
+
 }
 
+// - Helper --------------------------------------------------------------------------------------
 

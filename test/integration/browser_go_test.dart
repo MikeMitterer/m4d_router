@@ -1,12 +1,13 @@
 // @TestOn("browser")
 // integration
 @TestOn("browser")
-library test.integration.browser_gotourl;
+library test.integration.browser;
 
 import 'package:test/test.dart';
 import 'package:console_log_handler/console_log_handler.dart';
 
 import 'package:m4d_router/router.dart';
+import 'package:m4d_router/exceptions.dart';
 
 // import 'package:logging/logging.dart';
 
@@ -18,20 +19,17 @@ main() async {
     configLogging(show: Level.INFO);
 
     final router  = new Router();
-    test('gotoUrl should receive params', () {
+
+    test('go should route to cats', () {
 
         final callback = expectAsync1((final RouteEnterEvent event) {
             expect(event, isNotNull);
-            expect(event.route.title, "Specific cat");
-            expect(event.params.first, "Grumpy cat");
+            expect(event.route.title, "Cats");
         });
 
-        final pattern = new ReactPattern(r'/cats/(\w+)');
-        router.addRoute(name: "Specific cat", path: pattern,
-            enter: callback);
-
-        listenAnd(router,() => router.gotoUrl(pattern,[ "Grumpy cat"]));
+        router.addRoute(name: "Cats", path: "/cats",enter: callback);
+        listenAnd(router,() => router.go("Cats"));
     });
-}
 
+}
 

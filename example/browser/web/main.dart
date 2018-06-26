@@ -30,11 +30,11 @@ void _configRouter(final Router router ) {
                 _showImage("https://i1.wp.com/www.oxygen.ie/wp-content/uploads/2016/11/main_1500.jpg?resize=750%2C400");
             })
 
-        ..addRoute(name: 'Specific cat', path: new ReactPattern(r'/cats/(\w+)'),
+        ..addRoute(name: 'Specific cat', path: new ReactPattern(r'/cats/([\w%]+)'),
             enter: (final RouteEnterEvent event) {
                 _log("${event.route.title}: ${event.params.join(",")}");
                 _logger.info("Path: ${event.path} Params: ${event.params.join(",")}");
-                if(event.params.first.toLowerCase() == "grumpy") {
+                if(event.params.first.toLowerCase() == "grumpy cat") {
                     _showImage("https://pbs.twimg.com/media/CsW0pmxUsAAuvEN.jpg");
                 } else {
                     _showImage("https://catzone-tcwebsites.netdna-ssl.com/wp-content/uploads/2014/09/453768-cats-cute.jpg");
