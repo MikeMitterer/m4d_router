@@ -83,7 +83,6 @@ class UrlPattern implements Pattern {
         var argsIter = args.iterator;
 
         int depth = 0;
-        int groupCount = 0;
         bool escaped = false;
 
         for (int i = 0; i < chars.length; i++) {

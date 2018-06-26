@@ -11,8 +11,6 @@ import 'package:m4d_router/exceptions.dart';
 
 // import 'package:logging/logging.dart';
 
-import 'config.dart';
-
 main() async {
     // final Logger _logger = new Logger("test.integration.browser");
 

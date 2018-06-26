@@ -7,7 +7,6 @@ import 'package:test/test.dart';
 import 'package:console_log_handler/console_log_handler.dart';
 
 import 'package:m4d_router/router.dart';
-import 'package:m4d_router/exceptions.dart';
 
 // import 'package:logging/logging.dart';
 
