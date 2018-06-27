@@ -110,10 +110,13 @@ publishSamples() {
         rm -rf deploy
         pub run build_runner build --release --output web:deploy
 
-        # Sync to Amazon (root dir: browser)
-        # Uses 'Bucket-all-samples-for-mikemitterer.at' policy on AWS
-        aws s3 sync --delete deploy/ s3://${S3BUCKET}
+        # Sync is to slow
+        # aws s3 sync --delete deploy/ s3://${S3BUCKET}
 
+        # Copies to Amazon bucket
+        # Uses 'Bucket-all-samples-for-mikemitterer.at' policy on AWS
+        aws s3 rm s3://${S3BUCKET}/ --recursive
+        aws s3 cp deploy/ s3://${S3BUCKET}
     done
 }
 
