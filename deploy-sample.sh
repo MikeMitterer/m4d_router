@@ -102,7 +102,7 @@ publishSamples() {
         #pub update
 
         # Set current date in index.html
-        sed -i .bak -e "s#<span class=\"pubdate\">[^<]*</span>#<span class=\"pubdate\">$(date +"%Y-%m-%d / %H:%M:%S")</span>#g" web/index.html
+        sed -i.bak -e "s#<span class=\"pubdate\">[^<]*</span>#<span class=\"pubdate\">$(date +"%Y-%m-%d / %H:%M:%S")</span>#g" web/index.html
 
         # Dart build
         #pub run build_runner build --output web:deploy
