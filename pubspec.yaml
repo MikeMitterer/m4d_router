@@ -2,7 +2,7 @@ name: m4d_router
 description: A browser routing library for Dart
 version: 0.1.10
 author: Mike Mitterer <office@mikemitterer.at>
-homepage: https://github.com/dart-lang/route
+homepage: https://github.com/MikeMitterer/m4d_router
 
 environment:
  sdk: ">=1.8.0 <2.0.0"
