@@ -34,8 +34,10 @@ pipeline {
 
         stage('Deploy samples') {
             steps {
-                ansiColor('xterm') {
-                    sh './deploy-sample.sh -p --force'
+                timeout(time: 15, unit: 'MINUTES') {
+                    ansiColor('xterm') {
+                        sh './deploy-sample.sh -p --force'
+                    }
                 }
             }
         }
