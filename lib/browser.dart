@@ -37,7 +37,7 @@ void _defaultEnterCallback(final RouteEnterEvent event) {
 class Router {
     final _logger = new Logger('m4d_router.browser.router');
 
-    final LinkedHashMap<UrlPattern, Route> _handlers;
+    final HashMap<UrlPattern, Route> _handlers;
     final bool useFragment;
 
     bool _listen = false;
@@ -56,7 +56,7 @@ class Router {
     /// value is null which then determines the behavior based on
     /// [History.supportsState].
     Router({final bool useFragment: true})
-        : _handlers = new LinkedHashMap<UrlPattern, Route>(),
+        : _handlers = new HashMap<UrlPattern, Route>(),
             useFragment = (useFragment == null) ? !History.supportsState : useFragment;
 
     /// Registers a function that will be invoked when the router handles a URL
@@ -149,7 +149,7 @@ class Router {
     ///
     /// On older browsers [Location.assign] is used instead with the fragment
     /// version of the UrlPattern.
-    void gotoUrl(final UrlPattern urlPattern, final List params) {
+    void gotoUrl(final UrlPattern urlPattern, final List<String> params) {
         final route = _handlers.containsKey(urlPattern) ? _handlers[urlPattern]
             : throw new ArgumentError('Unknown URL pattern: $urlPattern');
 
