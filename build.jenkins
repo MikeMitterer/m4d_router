@@ -35,7 +35,7 @@ pipeline {
         stage('Deploy samples') {
             steps {
                 ansiColor('xterm') {
-                    sh './deploy-samples.sh -p --force'
+                    sh './deploy-sample.sh -p --force'
                 }
             }
         }
