@@ -18,7 +18,9 @@ Then, run `pub get` to download and link in the package.
 
 ## Sample
 
-Check out the sample on [GitHub](https://github.com/MikeMitterer/m4d_router/tree/route_version/example/browser)
+Live: [samples.m4d.router.mikemitterer.at](http://samples.m4d.router.mikemitterer.at.s3-website-eu-west-1.amazonaws.com/)
+http://samples.mikemitterer.at.s3-website-eu-west-1.amazonaws.com/m4d_router/
+Source - check it out on [GitHub](https://github.com/MikeMitterer/m4d_router/tree/route_version/example/browser)
 
 ```dart
 void main() {

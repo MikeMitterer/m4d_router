@@ -10,6 +10,7 @@ pipeline {
                         sh 'pub update'
                     }
                 }
+
             }
         }
         stage('Analyze') {
@@ -27,6 +28,14 @@ pipeline {
                     sh 'pub run test test/unit'
                     sh 'pub run test test/unit -p chrome'
                     sh 'pub run test test/integration -p chrome'
+                }
+            }
+        }
+
+        stage('Deploy samples') {
+            steps {
+                ansiColor('xterm') {
+                    sh 'deploy-samples -p --force'
                 }
             }
         }
