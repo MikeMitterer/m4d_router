@@ -107,6 +107,7 @@ publishSamples() {
         sed -i.bak -e "s#<span class=\"pubdate\">[^<]*</span>#<span class=\"pubdate\">$(date +"%Y-%m-%d / %H:%M:%S")</span>#g" web/index.html
 
         # Dart build
+        rm -rf deploy
         pub run build_runner build --release --output web:deploy
 
         # Sync to Amazon (root dir: browser)
