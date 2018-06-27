@@ -99,16 +99,17 @@ publishSamples() {
         local S3BUCKET=$(cat "${SAMPLE}/.s3" | sed -e "s/^#.*$//g" -e "/^$/d" | head -n 1)
 
         cd ${SAMPLE}
-        pub update
+        #pub update
 
         # Set current date in index.html
-        sed -i -e "s#\<span class=\"pubdate\"\>[^<]*\</span\>#<span class=\"pubdate\">$(date +"%Y-%m-%d / %H:%M")</span>#g" web/index.html
+        sed -i .bak -e "s#<span class=\"pubdate\">[^<]*</span>#<span class=\"pubdate\">$(date +"%Y-%m-%d / %H:%M:%S")</span>#g" web/index.html
 
         # Dart build
-        pub run build_runner build --output web:deploy
+        #pub run build_runner build --output web:deploy
 
         # Sync to Amazon (root dir: browser)
-        aws s3 sync --delete deploy/ s3://${S3BUCKET}
+        # Uses 'Bucket-all-samples-for-mikemitterer.at' policy on AWS
+        #aws s3 sync --delete deploy/ s3://${S3BUCKET}
 
     done
 }
