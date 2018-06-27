@@ -115,8 +115,8 @@ publishSamples() {
 
         # Copies to Amazon bucket
         # Uses 'Bucket-all-samples-for-mikemitterer.at' policy on AWS
-        aws s3 rm s3://${S3BUCKET}/ --recursive
-        aws s3 cp deploy/ s3://${S3BUCKET}
+        aws s3 rm s3://${S3BUCKET}/
+        aws s3 cp deploy/ s3://${S3BUCKET} --recursive
     done
 }
 
