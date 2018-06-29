@@ -170,7 +170,8 @@ publishSamples() {
         # aws s3 rm s3://${S3BUCKET}/
         # aws s3 cp deploy/ s3://${S3BUCKET} --recursive
 
-        rsync -e "ssh ${RSYNC_HOST}" -a -J --delete --progress ./deploy/ :~/website/data/example/m4d_router/
+        # --progress 
+        rsync -e "ssh ${RSYNC_HOST}" -a -J --delete ./deploy/ :~/website/data/example/m4d_router/
     done
 }
 
