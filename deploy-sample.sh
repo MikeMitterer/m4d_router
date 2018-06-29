@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # -----------------------------------------------------------------------------
-# Deploys sample to Amazon S3
+# Deploys sample to LightSail II
 #
-# S3 bucket name must be defined in a .s3-file for each sample
+# rsync-destination must be defined in a .rsync-file for each sample
 # -----------------------------------------------------------------------------
 
 # Vars die in .bashrc gesetzt werden. ~ (DEV_DOCKER, DEV_SEC, DEV_LOCAL) ~~~~~~
@@ -27,6 +27,27 @@ APPNAME="`basename $0`"
 
 SCRIPT=`realpath $0`           
 SCRIPTPATH=`dirname ${SCRIPT}`
+
+# defined in ~/.ssh/config
+RSYNC_HOST="ls2"
+
+#------------------------------------------------------------------------------
+# Einbinden der globalen Build-Lib
+#   Hier sind z.B. Farben, generell globale VARs und Funktionen definiert
+#
+
+GLOBAL_DIR="${DEV_DOCKER}/_global"
+LIB_DIR="${GLOBAL_DIR}/lib"
+
+TOOLS_LIB="tools.lib.sh"
+
+if [[ ! -f "${LIB_DIR}/${TOOLS_LIB}" ]]
+then
+    echo "LibDir ${LIB_DIR}/${TOOLS_LIB} existiert nicht!"
+    exit 1
+fi
+
+. "${LIB_DIR}/${TOOLS_LIB}"
 
 #------------------------------------------------------------------------------
 # BASIS
@@ -64,15 +85,46 @@ sampleFunction() {
 listSamples() {
     local SAMPLES=("${@}")
 
-    echo $OPTION
+    echo "Examples:"
 
     # Loop Through ARRAY
     for SAMPLE in "${SAMPLES[@]}"
     do
-        local S3BUCKET=$(cat "${SAMPLE}/.s3" | sed -e "s/^#.*$//g" -e "/^$/d" | head -n 1)
-        echo "${SAMPLE} / S3-Bucket: ${S3BUCKET}..."
+        local RSYNC_DESTINATION=$(cat "${SAMPLE}/.rsync" | sed -e "s/^#.*$//g" -e "/^$/d" | head -n 1)
+        echo -e "\tSource: ${YELLOW}${SAMPLE}${NC} / RSYNC-to: ${RSYNC_DESTINATION}..."
+    done
+
+    echo
+}
+
+#
+# Usage: deploySamples "${SAMPLES[@]}"
+#
+deploySamples() {
+    local SAMPLES=("${@}")
+
+    echo "Deploy:"
+
+    # Loop Through ARRAY
+    for SAMPLE in "${SAMPLES[@]}"
+    do
+        echo -e "\t${YELLOW}${SAMPLE}${NC}..."
+
+        cd ${SAMPLE}
+
+        # Update pub
+        pub update
+
+        # Set current date in index.html
+        sed -i.bak -e "s#<span class=\"pubdate\">[^<]*</span>#<span class=\"pubdate\">$(date +"%Y-%m-%d / %H:%M:%S")</span>#g" web/index.html
+        rm -f web/index.html.bak
+
+        # Dart build
+        rm -rf deploy
+        pub run build_runner build --release --output web:deploy
     done
 }
+
 
 #
 # Usage: publishSamples "${SAMPLES[@]}"
@@ -87,29 +139,27 @@ publishSamples() {
     #          if [ (("$x" != 99)) ]; then
     # 
     if [[ "${OPTION}" == "" && (("${DOW}" != "${PUBLISH_ONLY_ON_DAY}")) ]]; then
-        echo "Sorry - today is not a publishing day. "
+        echo -e "${ERROR}Sorry - today is not a publishing day.${NC}"
         echo "To force publishing use '--force'"
         exit 0
     fi
-    
+
+    echo "Publish:"
 
     # Loop Through ARRAY
     for SAMPLE in "${SAMPLES[@]}"
     do
-        local S3BUCKET=$(cat "${SAMPLE}/.s3" | sed -e "s/^#.*$//g" -e "/^$/d" | head -n 1)
+        local RSYNC_DESTINATION=$(cat "${SAMPLE}/.rsync" | sed -e "s/^#.*$//g" -e "/^$/d" | head -n 1)
+
+        echo -e "\t${YELLOW}${SAMPLE}${NC}..."
 
         cd ${SAMPLE}
 
-        # Update pub
-        pub update
-
-        # Set current date in index.html
-        sed -i.bak -e "s#<span class=\"pubdate\">[^<]*</span>#<span class=\"pubdate\">$(date +"%Y-%m-%d / %H:%M:%S")</span>#g" web/index.html
-        rm -f web/index.html.bak
-    
-        # Dart build
-        rm -rf deploy
-        pub run build_runner build --release --output web:deploy
+        # Check if DIR exists
+        if [ ! -d "deploy" ];then
+            echo -e "${ERROR}No 'deploy'-dir for ${SAMPLE}${NC}"
+            exit 1
+        fi
 
         # Sync is to slow
         # aws s3 sync --delete deploy/ s3://${S3BUCKET}
@@ -117,8 +167,10 @@ publishSamples() {
         # Copies to Amazon bucket
         # Uses 'Bucket-all-samples-for-mikemitterer.at' policy on AWS
         # e.g. aws s3 cp deploy/ s3://samples.m4d.router.mikemitterer.at --recursive
-        aws s3 rm s3://${S3BUCKET}/
-        aws s3 cp deploy/ s3://${S3BUCKET} --recursive
+        # aws s3 rm s3://${S3BUCKET}/
+        # aws s3 cp deploy/ s3://${S3BUCKET} --recursive
+
+        rsync -e "ssh ${RSYNC_HOST}" -a -J --delete --progress ./deploy/ :~/website/data/example/m4d_router/
     done
 }
 
@@ -130,6 +182,7 @@ usage() {
     echo
     echo "Usage: ${APPNAME} [ options ]"
     echo -e "\t-l | --list                Shows all samples"
+    echo -e "\t-d | --deploy              Creates 'deploy'-dir for Dart"
     echo -e "\t-p | --publish [--force]   Publish samples to AWS/S3 (only on day ${PUBLISH_ONLY_ON_DAY})"
     echo -e "\t                           use --force to ignore Monday as publishing day"
 }
@@ -140,6 +193,10 @@ OPTION=${2:-}
 case "${CMDLINE}" in
     -l|list|-list|--list)
         listSamples "${SAMPLES[@]}"
+    ;;
+
+    -d|deploy|-deploy|--deploy)
+        deploySamples "${SAMPLES[@]}"
     ;;
 
     -p|publish|-publish|--publish)
