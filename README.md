@@ -16,10 +16,10 @@ Add this package to your pubspec.yaml file:
 
 Then, run `pub get` to download and link in the package.
 
-## Sample
+## Example
 
 Live: [m4d_router.example.mikemitterer.at](http://m4d_router.example.mikemitterer.at/)  
-Source - check it out on [GitHub](https://github.com/MikeMitterer/m4d_router/tree/route_version/example/browser)
+Source on [GitHub](https://github.com/MikeMitterer/m4d_router/tree/route_version/example/browser)
 
 ```dart
 void main() {
