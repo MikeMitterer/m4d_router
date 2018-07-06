@@ -61,26 +61,39 @@ fi
 usage() {
     echo
     echo "Usage: ${APPNAME} [ options ]"
-    echo -e "\t-l | --list                Lists all examples from '${YELLOW}${EXAMPLE_FOLDER}'${NC}-folder"
-    echo -e "\t-d | --deploy              Creates 'deploy'-dir for Dart"
-    echo -e "\t-p | --publish [--force]   Publish samples to AWS/S3 (only on day ${PUBLISH_ONLY_ON_DAY})"
-    echo -e "\t                           use --force to ignore Monday as publishing day"
+    echo -e "\t-l | --list    [example_name]            Lists all examples from '${YELLOW}${EXAMPLE_FOLDER}'${NC}-folder"
+    echo -e "\t-d | --deploy  [example_name]            Creates 'deploy'-dir for Dart"
+    echo -e "\t-p | --publish [example_name] [--force]  Publish samples to AWS/S3 (only on day ${PUBLISH_ONLY_ON_DAY})"
+    echo -e "\t                                             use --force to ignore Monday as publishing day"
 }
 
-
 CMDLINE=${1:-}
-OPTION=${2:-}
+OPTION1=${2:-}
+OPTION2=${3:-}
+
 case "${CMDLINE}" in
     -l|list|-list|--list)
-        listSamples "${EXAMPLES[@]}"
+        if [ -n "${OPTION1+set}" -a "${OPTION1}" != ""  ]; then
+            listSamples "${EXAMPLE_FOLDER}/${OPTION1}"
+        else
+            listSamples "${EXAMPLES[@]}"
+        fi
     ;;
 
     -d|deploy|-deploy|--deploy)
-        deploySamples "${EXAMPLES[@]}"
+        if [ -n "${OPTION1+set}" -a "${OPTION1}" != ""  ]; then
+            deploySamples "${EXAMPLE_FOLDER}/${OPTION1}"
+        else
+            deploySamples "${EXAMPLES[@]}"
+        fi
     ;;
 
     -p|publish|-publish|--publish)
-        publishSamples "${EXAMPLES[@]}"
+        if [ -n "${OPTION1+set}" -a "${OPTION1}" != "--force"  ]; then
+            publishSamples "${EXAMPLE_FOLDER}/${OPTION1}"
+        else
+            publishSamples "${EXAMPLES[@]}"
+        fi
     ;;
 
     -h|-help|--help|*)
