@@ -5,7 +5,7 @@ author: Mike Mitterer <office@mikemitterer.at>
 homepage: https://github.com/MikeMitterer/m4d_router
 
 environment:
- sdk: ">=1.8.0 <2.0.0"
+  sdk: ">=2.0.0 <3.0.0"
 
 dependencies:
   logging: '>=0.11.3 <1.0.0'
@@ -14,7 +14,7 @@ dependencies:
   validate: ^1.0.0
   
 dev_dependencies:
-    test: ^1.0.0
+    test: any
     mockito: any
     console_log_handler: ^1.0.0
 
