@@ -90,7 +90,7 @@ case "${CMDLINE}" in
     ;;
 
     -d|deploy|-deploy|--deploy)
-        if [ -n "${OPTION1+set}" -a "${OPTION1}" != ""  ]; then
+        if [ -n "${OPTION1+set}" -a "${OPTION1}" != "--release"   ]; then
             deploySamples "${EXAMPLE_FOLDER}/${OPTION1}"
         else
             deploySamples "${EXAMPLES[@]}"
