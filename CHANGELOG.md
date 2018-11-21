@@ -3,6 +3,9 @@ A browser routing library for Dart
 
 ## [Unreleased](http://github.com/mikemitterer/m4d_router/compare/v0.2...HEAD)
 
+### Feature
+* Added onError to onEnterCallback [44bb914](https://github.com/mikemitterer/m4d_router/commit/44bb91414498208e63b40daece10813ff11be06a)
+
 ### Bugs
 * build.jenkins uses the right deploy-samples-script [1f877bc](https://github.com/mikemitterer/m4d_router/commit/1f877bc267ecdd051d371e8d83cf483346aeaf40)
 
