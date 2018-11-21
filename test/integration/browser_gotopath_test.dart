@@ -21,7 +21,7 @@ main() async {
 
     test('gotoPath should fetch params', () {
 
-        final callback = expectAsync1((final RouteEnterEvent event) {
+        final callback = expectAsync2((final RouteEnterEvent event,void onError(final Exception exception)) {
             expect(event, isNotNull);
             expect(event.route.title, "Specific cat");
             expect(event.params.first, "Grumpy cat");

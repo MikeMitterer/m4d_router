@@ -17,21 +17,21 @@ void _configRouter(final Router router ) {
 
     router
         ..addRoute(name: "Test I", path: new UrlPattern('/#/test'),
-            enter: (final RouteEnterEvent event) {
+            enter: (final RouteEnterEvent event,[ void onError(final Exception exception )]) {
                 _log(event.route.title);
                 _logger.info("Path: ${event.path} Params: ${event.params.join(",")}");
                 _showImage("https://dummyimage.com/400x300/ff0000/000000.png&text=Test");
             })
 
         ..addRoute(name: 'Kitten', path: new ReactPattern('/kitten'),
-            enter: (final RouteEnterEvent event) {
+            enter: (final RouteEnterEvent event,[ void onError(final Exception exception )]) {
                 _log(event.route.title);
                 _logger.info("Path: ${event.path} Params: ${event.params.join(",")}");
                 _showImage("https://raw.githubusercontent.com/MikeMitterer/m4d_router/master/doc/images/cats/IMG-20150820-WA0000.jpg");
             })
 
         ..addRoute(name: 'Specific cat', path: new ReactPattern(r'/cats/([\w%]+)'),
-            enter: (final RouteEnterEvent event) {
+            enter: (final RouteEnterEvent event,[ void onError(final Exception exception )]) {
                 _log("${event.route.title}: ${event.params.join(",")}");
                 _logger.info("Path: ${event.path} Params: ${event.params.join(",")}");
                 if(event.params.first.toLowerCase() == "grumpy cat") {
@@ -42,7 +42,7 @@ void _configRouter(final Router router ) {
             })
 
         ..addRoute(name: "Google for cats", path: new ReactPattern('/google'),
-            enter: (final RouteEnterEvent event) {
+            enter: (final RouteEnterEvent event,[ void onError(final Exception exception )]) {
                 _log(event.route.title);
                 _logger.info("Path: ${event.path} Params: ${event.params.join(",")}");
                 _showImage("https://upload.wikimedia.org/wikipedia/commons/a/a5/Google_Chrome_icon_%28September_2014%29.svg");

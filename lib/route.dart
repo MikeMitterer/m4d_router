@@ -21,7 +21,9 @@ library route.client;
 
 import 'package:m4d_router/url_pattern.dart';
 
-typedef void RouteEnterCallback(final RouteEnterEvent event);
+typedef void RouteEnterCallback(final RouteEnterEvent event,
+    [ void onError(final Exception exception)]
+    );
 
 /// Route enter event.
 abstract class RouteEvent {

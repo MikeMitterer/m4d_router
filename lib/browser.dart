@@ -24,7 +24,9 @@ typedef void EventHandler(final Event e);
 
 final _logger = new Logger('m4d_router.browser');
 
-void _defaultEnterCallback(final RouteEnterEvent event) {
+void _defaultEnterCallback(final RouteEnterEvent event,
+    [ void onError(final Exception exception)]) {
+    
     _logger.fine(
         "Default-Callback for ${event.route.title}. "
         "(Path: ${event.path} Params: ${event.params.join(",")})"
@@ -279,7 +281,8 @@ class Router {
 
     void _fire(final RouteEvent event) {
         // _logger.info("onChange: ${_onChange}, hasListeners: ${_onChange ?.hasListener}");
-        print(event);
+        // print(event);
+
         if(event is RouteErrorEvent) {
             if (true == _onError?.hasListener) {
                 _onError.add(event);
@@ -289,8 +292,11 @@ class Router {
             if (true == _onEnter?.hasListener) {
                 _onEnter.add(event);
             }
+
             // Call callback defined with route
-            event.route.onEnter(event);
+            event.route.onEnter(event, (final Exception exception) {
+                _onError?.add(RouteErrorEvent(exception, event.path));
+            });
         }
         else {
             throw ArgumentError("Undefined RouteEvent! ($event)");

@@ -21,7 +21,7 @@ main() async {
 
     test('go should route to cats', () {
 
-        final callback = expectAsync1((final RouteEnterEvent event) {
+         final RouteEnterCallback callback = expectAsync2((final RouteEnterEvent event,void onError(final Exception exception)) {
             expect(event, isNotNull);
             expect(event.route.title, "Cats");
         });
